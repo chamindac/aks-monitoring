@@ -1,0 +1,7 @@
+KubeNodeInventory
+| where ClusterName == "aks-chdemo-dev04"
+| extend nodepoolType = todynamic(Labels) 
+| extend nodepoolName = todynamic(nodepoolType[0].agentpool) 
+| summarize nodeCount = count() by tostring(nodepoolName), TimeGenerated
+| order by TimeGenerated asc
+| project TimeGenerated, nodepoolName, nodeCount

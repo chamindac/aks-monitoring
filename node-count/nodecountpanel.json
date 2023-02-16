@@ -1,0 +1,99 @@
+{
+    "id": 48,
+    "gridPos": {
+      "h": 8,
+      "w": 12,
+      "x": 12,
+      "y": 0
+    },
+    "type": "timeseries",
+    "title": "AKS Node Count",
+    "datasource": {
+      "uid": "azure-monitor-oob",
+      "type": "grafana-azure-monitor-datasource"
+    },
+    "fieldConfig": {
+      "defaults": {
+        "custom": {
+          "drawStyle": "line",
+          "lineInterpolation": "stepAfter",
+          "barAlignment": 0,
+          "lineWidth": 2,
+          "fillOpacity": 10,
+          "gradientMode": "none",
+          "spanNulls": true,
+          "showPoints": "auto",
+          "pointSize": 5,
+          "stacking": {
+            "mode": "none",
+            "group": "A"
+          },
+          "axisPlacement": "auto",
+          "axisLabel": "",
+          "axisColorMode": "text",
+          "scaleDistribution": {
+            "type": "linear"
+          },
+          "axisCenteredZero": false,
+          "hideFrom": {
+            "tooltip": false,
+            "viz": false,
+            "legend": false
+          },
+          "thresholdsStyle": {
+            "mode": "off"
+          }
+        },
+        "color": {
+          "mode": "palette-classic"
+        },
+        "mappings": [],
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            {
+              "color": "green",
+              "value": null
+            },
+            {
+              "color": "red",
+              "value": 80
+            }
+          ]
+        },
+        "decimals": 0,
+        "unit": "none"
+      },
+      "overrides": []
+    },
+    "options": {
+      "tooltip": {
+        "mode": "single",
+        "sort": "none"
+      },
+      "legend": {
+        "showLegend": true,
+        "displayMode": "list",
+        "placement": "bottom",
+        "calcs": []
+      }
+    },
+    "targets": [
+      {
+        "datasource": {
+          "type": "grafana-azure-monitor-datasource",
+          "uid": "azure-monitor-oob"
+        },
+        "azureLogAnalytics": {
+          "query": "KubeNodeInventory\r\n| where ClusterName == \"aks-chdemo-dev04\"\r\n| extend nodepoolType = todynamic(Labels) \r\n| extend nodepoolName = todynamic(nodepoolType[0].agentpool) \r\n| summarize nodeCount = count() by tostring(nodepoolName), TimeGenerated\r\n| order by TimeGenerated asc\r\n| project TimeGenerated, nodepoolName, nodeCount",
+          "resource": "/subscriptions/myazuresubscriptionid/resourceGroups/rg-chdemo-dev04/providers/Microsoft.OperationalInsights/workspaces/log-aks-chdemo-dev04"
+        },
+        "azureMonitor": {
+          "allowedTimeGrainsMs": [],
+          "timeGrain": "auto"
+        },
+        "queryType": "Azure Log Analytics",
+        "refId": "A"
+      }
+    ]
+  }
