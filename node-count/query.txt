@@ -1,4 +1,5 @@
 KubeNodeInventory
+// | where $__timeFilter(TimeGenerated) // use only in grafana
 | where ClusterName == "aks-chdemo-dev04"
 | extend nodepoolType = todynamic(Labels) 
 | extend nodepoolName = todynamic(nodepoolType[0].agentpool) 

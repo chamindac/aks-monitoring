@@ -1,4 +1,5 @@
 InsightsMetrics
+// | where $__timeFilter(TimeGenerated) // use only in grafana
 | where Name == 'kube_hpa_status_current_replicas'
 | extend pTags = todynamic(Tags)
 // get the namespace
