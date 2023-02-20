@@ -1,0 +1,17 @@
+InsightsMetrics
+| where Name == 'kube_hpa_status_current_replicas'
+| extend pTags = todynamic(Tags)
+// get the namespace
+| extend ns = todynamic(pTags.k8sNamespace) 
+// get the hpa name for app
+| extend deployment_hpa = todynamic(pTags.targetName) 
+// this is max replicas set in hpa
+| extend max_reps = todynamic(pTags.spec_max_replicas) 
+// this is desired number of replicas of the app
+| extend desired_reps = todynamic(pTags.status_desired_replicas) 
+| where ns == "mydemo" // add filter for desired namespace
+// filter the hpa for a given hpa (app)
+// We are using a variable named "aksservice" defined in grafana here
+| where deployment_hpa startswith "${aksservice:text}" 
+| order by TimeGenerated asc 
+| project TimeGenerated, deployment_hpa, toint(desired_reps), toint(max_reps)
