@@ -1,0 +1,10 @@
+InsightsMetrics
+// | where $__timeFilter(TimeGenerated) // use only in grafana
+| where Name == 'kube_hpa_status_current_replicas'
+| extend pTags = todynamic(Tags)
+| extend ns = todynamic(pTags.k8sNamespace)
+| extend deployment_hpa = todynamic(pTags.targetName)
+| extend desired_pods = todynamic(pTags.status_desired_replicas)
+| where ns == "mydemo"
+| order by TimeGenerated asc 
+| project TimeGenerated, deployment_hpa, toint(desired_pods)

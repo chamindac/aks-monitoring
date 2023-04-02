@@ -1,0 +1,103 @@
+{
+  "id": 57,
+  "gridPos": {
+    "h": 9,
+    "w": 24,
+    "x": 0,
+    "y": 8
+  },
+  "type": "timeseries",
+  "title": "AKS HPA - Desired Pods",
+  "datasource": {
+    "type": "grafana-azure-monitor-datasource",
+    "uid": "azure-monitor-oob"
+  },
+  "fieldConfig": {
+    "defaults": {
+      "custom": {
+        "drawStyle": "line",
+        "lineInterpolation": "linear",
+        "barAlignment": 0,
+        "lineWidth": 2,
+        "fillOpacity": 0,
+        "gradientMode": "none",
+        "spanNulls": true,
+        "showPoints": "auto",
+        "pointSize": 5,
+        "stacking": {
+          "mode": "none",
+          "group": "A"
+        },
+        "axisPlacement": "auto",
+        "axisLabel": "",
+        "axisColorMode": "text",
+        "scaleDistribution": {
+          "type": "linear"
+        },
+        "axisCenteredZero": false,
+        "hideFrom": {
+          "tooltip": false,
+          "viz": false,
+          "legend": false
+        },
+        "thresholdsStyle": {
+          "mode": "off"
+        }
+      },
+      "color": {
+        "mode": "palette-classic"
+      },
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "green",
+            "value": null
+          },
+          {
+            "color": "red",
+            "value": 80
+          }
+        ]
+      },
+      "decimals": 0,
+      "unit": "none"
+    },
+    "overrides": []
+  },
+  "options": {
+    "tooltip": {
+      "mode": "single",
+      "sort": "none"
+    },
+    "legend": {
+      "showLegend": true,
+      "displayMode": "table",
+      "placement": "right",
+      "calcs": [
+        "last",
+        "max",
+        "min"
+      ]
+    }
+  },
+  "targets": [
+    {
+      "azureLogAnalytics": {
+        "query": "InsightsMetrics\r\n| where $__timeFilter(TimeGenerated)\r\n| where Name == 'kube_hpa_status_current_replicas'\r\n| extend pTags = todynamic(Tags)\r\n| extend ns = todynamic(pTags.k8sNamespace)\r\n| extend deployment_hpa = todynamic(pTags.targetName)\r\n| extend desired_pods = todynamic(pTags.status_desired_replicas)\r\n| where ns == \"mydemo\"\r\n| order by TimeGenerated asc \r\n| project TimeGenerated, deployment_hpa, toint(desired_pods)",
+        "resource": "/subscriptions/myazuresubscriptionid/resourceGroups/rg-chdemo-dev04/providers/Microsoft.OperationalInsights/workspaces/log-aks-chdemo-dev04"
+      },
+      "azureMonitor": {
+        "allowedTimeGrainsMs": [],
+        "timeGrain": "auto"
+      },
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "azure-monitor-oob"
+      },
+      "queryType": "Azure Log Analytics",
+      "refId": "A"
+    }
+  ]
+}
