@@ -1,0 +1,11 @@
+KubePodInventory
+//| where $__timeFilter(TimeGenerated) // use only in grafana
+| where ClusterName == "aks-chdemo-dev04"
+| where Namespace in('mydemo')
+| extend pod_label = todynamic(PodLabel)
+| extend app_name = todynamic(pod_label[0].app)
+| where app_name == "${aksservice:text}"
+| summarize container_restarts = sum(ContainerRestartCount), pod_restarts = sum(PodRestartCount) by TimeGenerated, tostring(app_name), Name
+| where container_restarts > 0 or pod_restarts > 0
+| order by TimeGenerated asc
+| project TimeGenerated,app_name, Name, container_restarts, pod_restarts
