@@ -85,7 +85,7 @@
   "targets": [
     {
       "azureLogAnalytics": {
-        "query": "InsightsMetrics\r\n| where $__timeFilter(TimeGenerated)\r\n| where Name == 'kube_hpa_status_current_replicas'\r\n| extend pTags = todynamic(Tags)\r\n| extend ns = todynamic(pTags.k8sNamespace)\r\n| extend deployment_hpa = todynamic(pTags.targetName)\r\n| extend desired_pods = todynamic(pTags.status_desired_replicas)\r\n| where ns == \"mydemo\"\r\n| order by TimeGenerated asc \r\n| project TimeGenerated, deployment_hpa, toint(desired_pods)",
+        "query": "InsightsMetrics\r\n| where $__timeFilter(TimeGenerated)\r\n| where Name == 'kube_hpa_status_current_replicas'\r\n| extend pTags = todynamic(Tags)\r\n| extend clusterName = todynamic(pTags[\"container.azm.ms/clusterName\"])\r\n| extend ns = todynamic(pTags.k8sNamespace)\r\n| extend deployment_hpa = todynamic(pTags.targetName)\r\n| extend desired_pods = todynamic(pTags.status_desired_replicas)\r\n| where clusterName == \"aks-chdemo-dev04\"\r\n| where ns == \"mydemo\"\r\n| order by TimeGenerated asc \r\n| project TimeGenerated, deployment_hpa, toint(desired_pods)",
         "resource": "/subscriptions/myazuresubscriptionid/resourceGroups/rg-chdemo-dev04/providers/Microsoft.OperationalInsights/workspaces/log-aks-chdemo-dev04"
       },
       "azureMonitor": {
