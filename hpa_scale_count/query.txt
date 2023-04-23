@@ -2,6 +2,8 @@ InsightsMetrics
 // | where $__timeFilter(TimeGenerated) // use only in grafana
 | where Name == 'kube_hpa_status_current_replicas'
 | extend pTags = todynamic(Tags)
+// get the cluster name
+| extend clusterName = todynamic(pTags["container.azm.ms/clusterName"])
 // get the namespace
 | extend ns = todynamic(pTags.k8sNamespace) 
 // get the hpa name for app
@@ -10,6 +12,7 @@ InsightsMetrics
 | extend max_reps = todynamic(pTags.spec_max_replicas) 
 // this is desired number of replicas of the app
 | extend desired_reps = todynamic(pTags.status_desired_replicas) 
+| where clusterName == "aks-chdemo-dev04" // add filter for cluster name
 | where ns == "mydemo" // add filter for desired namespace
 // filter the hpa for a given hpa (app)
 // We are using a variable named "aksservice" defined in grafana here
