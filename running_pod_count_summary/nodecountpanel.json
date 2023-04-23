@@ -1,0 +1,103 @@
+{
+  "id": 59,
+  "gridPos": {
+    "h": 9,
+    "w": 24,
+    "x": 0,
+    "y": 17
+  },
+  "type": "timeseries",
+  "title": "AKS Running Pods",
+  "datasource": {
+    "uid": "azure-monitor-oob",
+    "type": "grafana-azure-monitor-datasource"
+  },
+  "fieldConfig": {
+    "defaults": {
+      "custom": {
+        "drawStyle": "line",
+        "lineInterpolation": "linear",
+        "barAlignment": 0,
+        "lineWidth": 2,
+        "fillOpacity": 0,
+        "gradientMode": "none",
+        "spanNulls": true,
+        "showPoints": "auto",
+        "pointSize": 5,
+        "stacking": {
+          "mode": "none",
+          "group": "A"
+        },
+        "axisPlacement": "auto",
+        "axisLabel": "",
+        "axisColorMode": "text",
+        "scaleDistribution": {
+          "type": "linear"
+        },
+        "axisCenteredZero": false,
+        "hideFrom": {
+          "tooltip": false,
+          "viz": false,
+          "legend": false
+        },
+        "thresholdsStyle": {
+          "mode": "off"
+        }
+      },
+      "color": {
+        "mode": "palette-classic"
+      },
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "green",
+            "value": null
+          },
+          {
+            "color": "red",
+            "value": 80
+          }
+        ]
+      },
+      "decimals": 0,
+      "unit": "none"
+    },
+    "overrides": []
+  },
+  "options": {
+    "tooltip": {
+      "mode": "single",
+      "sort": "none"
+    },
+    "legend": {
+      "showLegend": true,
+      "displayMode": "table",
+      "placement": "right",
+      "calcs": [
+        "last",
+        "max",
+        "min"
+      ]
+    }
+  },
+  "targets": [
+    {
+      "datasource": {
+        "type": "grafana-azure-monitor-datasource",
+        "uid": "azure-monitor-oob"
+      },
+      "azureLogAnalytics": {
+        "query": "KubePodInventory\r\n| where $__timeFilter(TimeGenerated)\r\n| where ClusterName == \"aks-chdemo-dev04\"\r\n| where Namespace in('mydemo') and ControllerKind == 'ReplicaSet'\r\n| extend pod_label = todynamic(PodLabel)\r\n| extend app_name = todynamic(pod_label[0].app)\r\n| summarize running_pods = sumif(1, PodStatus == 'Running' ) by TimeGenerated, tostring(app_name)\r\n| order by TimeGenerated asc\r\n| project TimeGenerated, app_name, running_pods",
+        "resource": "/subscriptions/myazuresubscriptionid/resourceGroups/rg-chdemo-dev04/providers/Microsoft.OperationalInsights/workspaces/log-aks-chdemo-dev04"
+      },
+      "azureMonitor": {
+        "allowedTimeGrainsMs": [],
+        "timeGrain": "auto"
+      },
+      "queryType": "Azure Log Analytics",
+      "refId": "A"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+KubePodInventory
+// | where $__timeFilter(TimeGenerated) // use only in grafana
+| where ClusterName == "aks-chdemo-dev04"
+| where Namespace in('mydemo') and ControllerKind == 'ReplicaSet'
+| extend pod_label = todynamic(PodLabel)
+| extend app_name = todynamic(pod_label[0].app)
+| summarize running_pods = sumif(1, PodStatus == 'Running' ) by TimeGenerated, tostring(app_name)
+| order by TimeGenerated asc
+| project TimeGenerated, app_name, running_pods
